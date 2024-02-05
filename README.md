@@ -5,7 +5,33 @@ This is a sqlite database that stores some of my favorite books and authors that
 
 Strategy: Single domain double shot
 
-Prompt Prefix: create table Book (\n    book_id integer primary key,\n    author_id integer not null,\n\ttitle varchar(100) not null,\n    isbn varchar(20) unique not null,\n    genre varchar(100),\n    publication date,\n    publisher_id int,\n    rating decimal(2,1),\n    foreign key (author_id) references Author (author_id),\n    foreign key (publisher_id) references Publisher (publisher_id)\n);\n\ncreate table Author(\n\tauthor_id integer primary key,\n\tfirst_name varchar(50) not null,\n\tlast_name varchar(50) not null,\n\tbirth date,\n\tnationality varchar(50)\n);\n\n\ncreate table Publisher(\n\tpublisher_id integer primary key,\n\tname varchar(100) not null,\n\taddress varchar(100),\n\tphone varchar(20),\n\twebsite varchar(100)\n);\n Give me a sqlite select statement that answers the question. Only respond with sqlite syntax. If there is an error do not expalin it!
+Prompt Prefix: create table Book (
+                    book_id integer primary key,
+                    author_id integer not null,
+                    title varchar(100) not null,
+                    isbn varchar(20) unique not null,    
+                    genre varchar(100),    
+                    publication date,    
+                    publisher_id int,
+                    rating decimal(2,1),
+                    foreign key (author_id) references Author (author_id),
+                    foreign key (publisher_id) references Publisher (publisher_id)
+                );
+                create table Author(
+                    author_id integer primary key,
+                    first_name varchar(50) not null,
+                    last_name varchar(50) not null,
+                    birth date,
+                    nationality varchar(50)
+                );
+                create table Publisher(
+                    publisher_id integer primary key,
+                    name varchar(100) not null,
+                    address varchar(100),
+                    phone varchar(20),
+                    website varchar(100)
+                ); 
+                Give me a sqlite select statement that answers the question. Only respond with sqlite syntax. If there is an error do not expalin it!
 
 Prompt: Give me all books that are by English authors.
 
