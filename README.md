@@ -48,3 +48,7 @@ Actual Response: I'm sorry, I don't have access to books or any inventory.
  - "Which books were published before the year 2000?"
 
 See detailed results of these prompts in the json files of this repo.
+
+# Conclusion
+
+- Over all it did very well, it did struggle with giving a valid response when a query returned an empty set.
