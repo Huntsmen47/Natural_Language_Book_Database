@@ -1,0 +1,62 @@
+{
+  "strategy": "zero_shot",
+  "prompt_prefix": "create table Book (\n    book_id integer primary key,\n    author_id integer not null,\n\ttitle varchar(100) not null,\n    isbn varchar(20) unique not null,\n    genre varchar(100),\n    publication date,\n    publisher_id int,\n    rating decimal(2,1),\n    foreign key (author_id) references Author (author_id),\n    foreign key (publisher_id) references Publisher (publisher_id)\n);\n\ncreate table Author(\n\tauthor_id integer primary key,\n\tfirst_name varchar(50) not null,\n\tlast_name varchar(50) not null,\n\tbirth date,\n\tnationality varchar(50)\n);\n\n\ncreate table Publisher(\n\tpublisher_id integer primary key,\n\tname varchar(100) not null,\n\taddress varchar(100),\n\tphone varchar(20),\n\twebsite varchar(100)\n);\n Give me a sqlite select statement that answers the question. Only respond with sqlite syntax. If there is an error do not expalin it!",
+  "questionResults": [
+    {
+      "question": "Give me all books that are by English authors.",
+      "sql": "SELECT b.book_id, b.title, b.isbn, b.genre, b.publication, b.rating\nFROM Book b\nJOIN Author a ON b.author_id = a.author_id\nWHERE a.nationality = 'English';",
+      "queryRawResponse": "[(2, 'The Lord of the Rings: The Fellowship of the Ring', '978-0-345-33970-6', 'Fantasy', '1954-07-29', 5), (4, 'Harry Potter and the Order of the Phoenix', '0-439-35807-8', 'YA Fantasy', '2003-06-21', 4.5), (6, 'Harry Potter and Sorcerers Stone', '0-590-35342-X', 'YA Fantasy', '1998-09-01', 3)]",
+      "friendlyResponse": "Sure, here's the list of books by English authors:\n\n1. \"The Lord of the Rings: The Fellowship of the Ring\" by J.R.R. Tolkien (ISBN: 978-0-345-33970-6, Genre: Fantasy, Published: 1954-07-29)\n2. \"Harry Potter and the Order of the Phoenix\" by J.K. Rowling (ISBN: 0-439-35807-8, Genre: YA Fantasy, Published: 2003-06-21)\n3. \"Harry Potter and the Sorcerer's Stone\" by J.K. Rowling (ISBN: 0-590-35342-X, Genre: YA Fantasy, Published: 1998-09-01)",
+      "error": "None"
+    },
+    {
+      "question": "Which book is the highest rated?",
+      "sql": "SELECT title, MAX(rating) AS highest_rating\nFROM Book\nGROUP BY title\nORDER BY highest_rating DESC\nLIMIT 1;",
+      "queryRawResponse": "[('The Lord of the Rings: The Fellowship of the Ring', 5)]",
+      "friendlyResponse": "\"The Lord of the Rings: The Fellowship of the Ring\" has the highest rating with a score of 5.",
+      "error": "None"
+    },
+    {
+      "question": "Which books are written by the same author?",
+      "sql": "\nSELECT B1.title AS Book1Title, B1.isbn AS Book1ISBN, B2.title AS Book2Title, B2.isbn AS Book2ISBN\nFROM Book B1\nJOIN Book B2 ON B1.author_id = B2.author_id AND B1.book_id != B2.book_id;\n",
+      "queryRawResponse": "[('Harry Potter and the Order of the Phoenix', '0-439-35807-8', 'Harry Potter and Sorcerers Stone', '0-590-35342-X'), ('Harry Potter and Sorcerers Stone', '0-590-35342-X', 'Harry Potter and the Order of the Phoenix', '0-439-35807-8')]",
+      "friendlyResponse": "The books \"Harry Potter and the Order of the Phoenix\" and \"Harry Potter and the Sorcerer's Stone\" are both written by the same author, J.K. Rowling.",
+      "error": "None"
+    },
+    {
+      "question": "Give me all the books by American authors.",
+      "sql": "\nSELECT B.book_id, B.title, B.isbn, B.genre, B.publication, B.publisher_id, B.rating\nFROM Book B\nJOIN Author A ON B.author_id = A.author_id\nWHERE A.nationality = 'American';\n",
+      "queryRawResponse": "[(1, 'The Wheel of Time: Lord of Chaos', '0-812-51375-4', 'Fantasy', '1994-10-15', 1, 4.3), (3, 'Dune', '0-441-17271-7', 'Science Fiction', '1965-08-01', 3, 4), (5, 'The Stormlight Archive: The Way Of Kings', '978-0-7653-6527-9', 'Fantasy', '2010-08-31', 1, 4.9)]",
+      "friendlyResponse": "Sure, here's a concise list of books by American authors:\n\n1. \"The Wheel of Time: Lord of Chaos\" by Robert Jordan, ISBN: 0-812-51375-4, Genre: Fantasy, Published Date: 1994-10-15, Average Rating: 4.3\n2. \"Dune\" by Frank Herbert, ISBN: 0-441-17271-7, Genre: Science Fiction, Published Date: 1965-08-01, Average Rating: 4\n3. \"The Stormlight Archive: The Way of Kings\" by Brandon Sanderson, ISBN: 978-0-7653-6527-9, Genre: Fantasy, Published Date: 2010-08-31, Average Rating: 4.9",
+      "error": "None"
+    },
+    {
+      "question": "Give me only Science Fiction books.",
+      "sql": "\nSELECT * FROM Book WHERE genre = 'Science Fiction';\n",
+      "queryRawResponse": "[(3, 3, 'Dune', '0-441-17271-7', 'Science Fiction', '1965-08-01', 3, 4)]",
+      "friendlyResponse": "\"Dune\" by Frank Herbert, ISBN: 0-441-17271-7, published in 1965.",
+      "error": "None"
+    },
+    {
+      "question": "Do you have any books in the historical fiction genre?",
+      "sql": "\nSELECT * FROM Book WHERE genre = 'historical fiction';\n",
+      "queryRawResponse": "[]",
+      "friendlyResponse": "I'm sorry, but I don't have any books as I'm an AI. However, I can recommend historical fiction titles if that's helpful.",
+      "error": "None"
+    },
+    {
+      "question": "Which books have the same publisher?",
+      "sql": "\nSELECT \n    B1.title AS book_title_1, \n    B2.title AS book_title_2, \n    B1.publisher_id\nFROM \n    Book B1, \n    Book B2\nWHERE \n    B1.book_id != B2.book_id AND \n    B1.publisher_id = B2.publisher_id AND \n    B1.publisher_id IS NOT NULL;\n",
+      "queryRawResponse": "[('The Wheel of Time: Lord of Chaos', 'The Stormlight Archive: The Way Of Kings', 1), ('Harry Potter and the Order of the Phoenix', 'Harry Potter and Sorcerers Stone', 4), ('The Stormlight Archive: The Way Of Kings', 'The Wheel of Time: Lord of Chaos', 1), ('Harry Potter and Sorcerers Stone', 'Harry Potter and the Order of the Phoenix', 4)]",
+      "friendlyResponse": "\"The Wheel of Time: Lord of Chaos\" and \"The Stormlight Archive: The Way of Kings\" share the same publisher. \"Harry Potter and the Order of the Phoenix\" and \"Harry Potter and the Sorcerer's Stone\" are also published by the same publisher.",
+      "error": "None"
+    },
+    {
+      "question": "Which books were published before the year 2000?",
+      "sql": "\nSELECT title\nFROM Book\nWHERE strftime('%Y', publication) < '2000';\n",
+      "queryRawResponse": "[('The Wheel of Time: Lord of Chaos',), ('The Lord of the Rings: The Fellowship of the Ring',), ('Dune',), ('Harry Potter and Sorcerers Stone',)]",
+      "friendlyResponse": "\"The Wheel of Time: Lord of Chaos,\" \"The Lord of the Rings: The Fellowship of the Ring,\" \"Dune,\" and \"Harry Potter and the Sorcerer's Stone\" were all published before the year 2000.",
+      "error": "None"
+    }
+  ]
+}

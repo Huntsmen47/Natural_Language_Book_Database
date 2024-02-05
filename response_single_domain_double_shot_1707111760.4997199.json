@@ -1,0 +1,62 @@
+{
+  "strategy": "single_domain_double_shot",
+  "prompt_prefix": "create table Book (\n    book_id integer primary key,\n    author_id integer not null,\n\ttitle varchar(100) not null,\n    isbn varchar(20) unique not null,\n    genre varchar(100),\n    publication date,\n    publisher_id int,\n    rating decimal(2,1),\n    foreign key (author_id) references Author (author_id),\n    foreign key (publisher_id) references Publisher (publisher_id)\n);\n\ncreate table Author(\n\tauthor_id integer primary key,\n\tfirst_name varchar(50) not null,\n\tlast_name varchar(50) not null,\n\tbirth date,\n\tnationality varchar(50)\n);\n\n\ncreate table Publisher(\n\tpublisher_id integer primary key,\n\tname varchar(100) not null,\n\taddress varchar(100),\n\tphone varchar(20),\n\twebsite varchar(100)\n);\nWhich book is the highest rated? \nSELECT book_id, title, rating\nFROM Book\nWHERE rating = (SELECT MAX(rating) FROM  Book);  Give me a sqlite select statement that answers the question. Only respond with sqlite syntax. If there is an error do not expalin it!",
+  "questionResults": [
+    {
+      "question": "Give me all books that are by English authors.",
+      "sql": "\nSELECT b.book_id, b.title, b.rating\nFROM Book b\nJOIN Author a ON b.author_id = a.author_id\nWHERE a.nationality = 'English';\n",
+      "queryRawResponse": "[(2, 'The Lord of the Rings: The Fellowship of the Ring', 5), (4, 'Harry Potter and the Order of the Phoenix', 4.5), (6, 'Harry Potter and Sorcerers Stone', 3)]",
+      "friendlyResponse": "Sure, here are some books by English authors:\n\n1. \"The Lord of the Rings: The Fellowship of the Ring\" by J.R.R. Tolkien, Rating: 5\n2. \"Harry Potter and the Order of the Phoenix\" by J.K. Rowling, Rating: 4.5\n3. \"Harry Potter and the Sorcerer's Stone\" by J.K. Rowling, Rating: 3",
+      "error": "None"
+    },
+    {
+      "question": "Which book is the highest rated?",
+      "sql": "SELECT book_id, title, rating\nFROM Book\nWHERE rating = (SELECT MAX(rating) FROM Book);",
+      "queryRawResponse": "[(2, 'The Lord of the Rings: The Fellowship of the Ring', 5)]",
+      "friendlyResponse": "The highest-rated book is \"The Lord of the Rings: The Fellowship of the Ring\" with a rating of 5.",
+      "error": "None"
+    },
+    {
+      "question": "Which books are written by the same author?",
+      "sql": "\nSELECT A.book_id AS BookID1, A.title AS Title1, B.book_id AS BookID2, B.title AS Title2, A.author_id\nFROM Book A\nINNER JOIN Book B ON A.author_id = B.author_id\nWHERE A.book_id != B.book_id;\n",
+      "queryRawResponse": "[(4, 'Harry Potter and the Order of the Phoenix', 6, 'Harry Potter and Sorcerers Stone', 4), (6, 'Harry Potter and Sorcerers Stone', 4, 'Harry Potter and the Order of the Phoenix', 4)]",
+      "friendlyResponse": "The books \"Harry Potter and the Order of the Phoenix\" and \"Harry Potter and the Sorcerer's Stone\" are both written by the same author, J.K. Rowling.",
+      "error": "None"
+    },
+    {
+      "question": "Give me all the books by American authors.",
+      "sql": "\nSELECT b.book_id, b.title, b.genre, b.publication, b.rating\nFROM Book AS b\nJOIN Author AS a\n  ON b.author_id = a.author_id\nWHERE a.nationality = 'American';\n",
+      "queryRawResponse": "[(1, 'The Wheel of Time: Lord of Chaos', 'Fantasy', '1994-10-15', 4.3), (3, 'Dune', 'Science Fiction', '1965-08-01', 4), (5, 'The Stormlight Archive: The Way Of Kings', 'Fantasy', '2010-08-31', 4.9)]",
+      "friendlyResponse": "Here's a list of books by American authors:\n\n1. \"The Wheel of Time: Lord of Chaos\" by Robert Jordan - Fantasy, released on October 15, 1994, with a rating of 4.3.\n2. \"Dune\" by Frank Herbert - Science Fiction, released on August 1, 1965, with a rating of 4.\n3. \"The Stormlight Archive: The Way Of Kings\" by Brandon Sanderson - Fantasy, released on August 31, 2010, with a rating of 4.9.",
+      "error": "None"
+    },
+    {
+      "question": "Give me only Science Fiction books.",
+      "sql": "\nSELECT book_id, title, rating\nFROM Book\nWHERE genre = 'Science Fiction' AND rating = (\n    SELECT MAX(rating) FROM Book WHERE genre = 'Science Fiction'\n);\n",
+      "queryRawResponse": "[(3, 'Dune', 4)]",
+      "friendlyResponse": "\"Dune\" by Frank Herbert.",
+      "error": "None"
+    },
+    {
+      "question": "Do you have any books in the historical fiction genre?",
+      "sql": "\nSELECT book_id, title, rating\nFROM Book\nWHERE genre = 'historical fiction';\n",
+      "queryRawResponse": "[]",
+      "friendlyResponse": "As an AI, I don't have a personal collection of books. However, I can help you find historical fiction books or recommend some popular ones if you'd like.",
+      "error": "None"
+    },
+    {
+      "question": "Which books have the same publisher?",
+      "sql": "\nSELECT a.book_id, a.title, a.publisher_id, b.name AS publisher_name\nFROM Book AS a\nJOIN Publisher AS b ON a.publisher_id = b.publisher_id\nWHERE a.publisher_id IN (SELECT publisher_id FROM Book GROUP BY publisher_id HAVING COUNT(book_id) > 1);\n",
+      "queryRawResponse": "[(1, 'The Wheel of Time: Lord of Chaos', 1, 'Tor Books'), (4, 'Harry Potter and the Order of the Phoenix', 4, 'Bloomsbury'), (5, 'The Stormlight Archive: The Way Of Kings', 1, 'Tor Books'), (6, 'Harry Potter and Sorcerers Stone', 4, 'Bloomsbury')]",
+      "friendlyResponse": "\"The Wheel of Time: Lord of Chaos\" and \"The Stormlight Archive: The Way Of Kings\" are both published by Tor Books. \"Harry Potter and the Order of the Phoenix\" and \"Harry Potter and the Sorcerer's Stone\" are both published by Bloomsbury.",
+      "error": "None"
+    },
+    {
+      "question": "Which books were published before the year 2000?",
+      "sql": "\nSELECT book_id, title\nFROM Book\nWHERE strftime('%Y', publication) < '2000';\n",
+      "queryRawResponse": "[(1, 'The Wheel of Time: Lord of Chaos'), (2, 'The Lord of the Rings: The Fellowship of the Ring'), (3, 'Dune'), (6, 'Harry Potter and Sorcerers Stone')]",
+      "friendlyResponse": "\"The Wheel of Time: Lord of Chaos,\" \"The Lord of the Rings: The Fellowship of the Ring,\" \"Dune,\" and \"Harry Potter and the Sorcerer's Stone\" were all published before the year 2000.",
+      "error": "None"
+    }
+  ]
+}

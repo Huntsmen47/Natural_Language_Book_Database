@@ -78,6 +78,8 @@ questions = [
      "Give me all the books by American authors.",
      "Give me only Science Fiction books.",
      "Do you have any books in the historical fiction genre?"
+     "Which books have the same publisher?",
+     "Which books were published before the year 2000?"
 ]
 
 def sanitizeForJustSql(value):
