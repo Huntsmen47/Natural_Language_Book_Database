@@ -1,6 +1,7 @@
 create table Book (
     book_id integer primary key,
     author_id integer not null,
+    title varchar(100) not null,
     isbn varchar(20) unique not null,
     genre varchar(100),
     publication date,
